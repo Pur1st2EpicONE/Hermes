@@ -23,7 +23,7 @@ down:
 	rm -f Dockerfile docker-compose.yaml config.yaml
 
 reset:
-	docker volume rm iris_postgres_data
+	docker volume rm hermes_postgres_data
 
 local:
 	if [ ! -f .env ]; then cat .env.example > .env; fi 

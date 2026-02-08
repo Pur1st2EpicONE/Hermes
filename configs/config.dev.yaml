@@ -15,7 +15,7 @@ server:
 database:
   host: localhost                              # Database host
   port: "5433"                                 # Database port
-  dbname: iris-db                              # Database name
+  dbname: hermes-db                            # Database name
   sslmode: disable                             # SSL mode for database connection
   max_open_conns: 20                           # Maximum number of open database connections
   max_idle_conns: 10                           # Maximum number of idle connections

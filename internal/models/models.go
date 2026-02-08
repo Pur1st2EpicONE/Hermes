@@ -1,17 +1,21 @@
 package models
 
-type Link struct {
-	OriginalURL string
-	Alias       string
+import "time"
+
+type Comment struct {
+	ID        int64
+	ParentID  *int64
+	Content   string
+	Author    string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	Children  []*Comment
 }
 
-type ShortLink struct {
-	ShortURL string
-}
-
-type VisitStats struct {
-	Count       int            `json:"count"`
-	ByDay       map[string]int `json:"by_day"`
-	ByMonth     map[string]int `json:"by_month"`
-	ByUserAgent map[string]int `json:"by_user_agent"`
+type QueryParams struct {
+	ParentID *int64
+	Page     int
+	Limit    int
+	Sort     string
+	Offset   int
 }

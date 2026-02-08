@@ -1,6 +1,7 @@
 package v1
 
-type ShortenLinkDTO struct {
-	OriginalURL string `json:"original_url" binding:"required"`
-	Alias       string `json:"alias,omitempty"`
+type CreateCommentV1 struct {
+	ParentID *int64 `json:"parent_id,omitempty"`
+	Content  string `json:"content"`
+	Author   string `json:"author"`
 }

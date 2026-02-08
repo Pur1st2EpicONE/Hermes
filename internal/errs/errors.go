@@ -3,13 +3,14 @@ package errs
 import "errors"
 
 var (
-	ErrInvalidJSON        = errors.New("invalid JSON format")                                 // invalid JSON format
-	ErrLinkNotFound       = errors.New("short link not found")                                // short link not found
-	ErrAliasExists        = errors.New("URL with this alias already exists")                  // URL with this alias already exists
-	ErrInternal           = errors.New("internal server error")                               // internal server error
-	ErrInvalidOriginalURL = errors.New("original_url is not a valid URL")                     // original_url is not a valid URL
-	ErrOriginalURLScheme  = errors.New("original_url must use http or https scheme")          // original_url must use http or https scheme
-	ErrOriginalURLHost    = errors.New("original_url must contain host")                      // original_url must contain host
-	ErrAliasTooLong       = errors.New("custom_alias length must be less than 32 characters") // custom_alias length must be less than 32 characters
-	ErrAliasInvalidChars  = errors.New("custom_alias contains invalid characters")            // custom_alias contains invalid characters
+	ErrInvalidJSON     = errors.New("invalid JSON format")              // invalid JSON format
+	ErrEmptyContent    = errors.New("comment content can not be empty") // comment content can not be empty
+	ErrEmptyAuthor     = errors.New("comment author can not be empty")  // comment author can not be empty
+	ErrCommentNotFound = errors.New("comment not found")                // comment not found
+	ErrParentNotFound  = errors.New("parent comment not found")         // parent comment not found
+	ErrInternal        = errors.New("internal server error")            // internal server error
+	ErrInvalidParentID = errors.New("invalid parent id")                // invalid parent id
+	ErrInvalidPage     = errors.New("invalid page number")              // invalid page number
+	ErrInvalidLimit    = errors.New("invalid limit")                    // invalid limit
+	ErrInvalidSort     = errors.New("invalid sort value")               // invalid sort value
 )

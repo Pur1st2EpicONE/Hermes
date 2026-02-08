@@ -3,7 +3,9 @@ package repository
 import (
 	"Hermes/internal/config"
 	"Hermes/internal/logger"
+	"Hermes/internal/models"
 	"Hermes/internal/repository/postgres"
+	"context"
 	"fmt"
 
 	"github.com/wb-go/wbf/dbpg"
@@ -11,6 +13,10 @@ import (
 
 type Storage interface {
 	Close()
+	CreateComment(ctx context.Context, comment models.Comment) (int64, error)
+	GetRootComments(ctx context.Context, queryParams models.QueryParams) ([]models.Comment, error)
+	GetCommentTree(ctx context.Context, id int64) ([]models.Comment, error)
+	DeleteComment(ctx context.Context, id int64) error
 }
 
 func NewStorage(logger logger.Logger, config config.Storage, db *dbpg.DB) Storage {
