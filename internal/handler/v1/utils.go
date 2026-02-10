@@ -68,6 +68,21 @@ func parseQuery(c *ginext.Context) (models.QueryParams, error) {
 
 }
 
+func parseParam(c *ginext.Context) (int64, error) {
+
+	idStr := c.Param("id")
+	if idStr == "" {
+		return 0, errs.ErrEmptyCommentID
+	}
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		return 0, errs.ErrInvalidCommentID
+	}
+
+	return id, nil
+
+}
+
 func respondOK(c *ginext.Context, response any) {
 	c.JSON(http.StatusOK, ginext.H{"result": response})
 }
@@ -88,6 +103,8 @@ func mapErrorToStatus(err error) (int, string) {
 		errors.Is(err, errs.ErrInvalidParentID),
 		errors.Is(err, errs.ErrInvalidPage),
 		errors.Is(err, errs.ErrInvalidLimit),
+		errors.Is(err, errs.ErrEmptyCommentID),
+		errors.Is(err, errs.ErrInvalidCommentID),
 		errors.Is(err, errs.ErrInvalidSort):
 		return http.StatusBadRequest, err.Error()
 

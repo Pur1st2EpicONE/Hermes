@@ -8,13 +8,13 @@ const deleted = "deleted"
 
 func (h *Handler) DeleteComment(c *ginext.Context) {
 
-	id, err := parseQuery(c)
+	id, err := parseParam(c)
 	if err != nil {
 		respondError(c, err)
 		return
 	}
 
-	err = h.service.DeleteComment(c.Request.Context(), *id.ParentID)
+	err = h.service.DeleteComment(c.Request.Context(), id)
 	if err != nil {
 		respondError(c, err)
 		return

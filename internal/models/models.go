@@ -3,13 +3,13 @@ package models
 import "time"
 
 type Comment struct {
-	ID        int64
-	ParentID  *int64
-	Content   string
-	Author    string
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	Children  []*Comment
+	ID        int64      `json:"id"`
+	ParentID  *int64     `json:"parent_id,omitempty"`
+	Content   string     `json:"content"`
+	Author    string     `json:"author"`
+	CreatedAt time.Time  `json:"created_at"`
+	UpdatedAt time.Time  `json:"updated_at"`
+	Children  []*Comment `json:"children,omitempty"`
 }
 
 type QueryParams struct {
