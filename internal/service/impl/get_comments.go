@@ -9,6 +9,7 @@ func (s *Service) GetComments(ctx context.Context, params models.QueryParams) ([
 
 	roots, err := s.storage.GetRootComments(ctx, params)
 	if err != nil {
+		s.logger.LogError("service — failed to get root comments", err, "layer", "service.impl")
 		return nil, err
 	}
 
@@ -18,6 +19,7 @@ func (s *Service) GetComments(ctx context.Context, params models.QueryParams) ([
 
 		flat, err := s.storage.GetCommentTree(ctx, root.ID)
 		if err != nil {
+			s.logger.LogError("service — failed to get comment tree", err, "layer", "service.impl")
 			return nil, err
 		}
 

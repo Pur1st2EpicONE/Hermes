@@ -48,9 +48,9 @@ test:
 	if [ ! -f config.yaml ]; then cp ./configs/config.test.yaml ./config.yaml; fi
 	if [ ! -f docker-compose.yaml ]; then cp ./deployments/docker-compose.test.yaml ./docker-compose.yaml; fi
 	docker compose -f docker-compose.yaml up -d postgres-test
-	until docker exec postgres-test pg_isready -U ${DB_USER} -d iris_test > /dev/null 2>&1; do sleep 0.5; done
+	until docker exec postgres-test pg_isready -U ${DB_USER} -d hermes_test > /dev/null 2>&1; do sleep 0.5; done
 	for i in $$(seq 1 10); do \
-		migrate -path ./migrations -database "postgres://${DB_USER}:${DB_PASSWORD}@localhost:5433/iris_test?sslmode=disable" up && break; \
+		migrate -path ./migrations -database "postgres://${DB_USER}:${DB_PASSWORD}@localhost:5433/hermes_test?sslmode=disable" up && break; \
 		echo "Retry $$i/10..."; sleep 1; \
 	done
 	echo "Running tests, please be patient (≈2 min)"

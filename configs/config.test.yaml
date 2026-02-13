@@ -18,7 +18,7 @@ server:
 database:
   host: postgres-test                          # Database host
   port: "5432"                                 # Database port; must match the exposed port in docker-compose.full.yaml
-  dbname: iris_test                            # Database name
+  dbname: hermes_test                          # Database name
   sslmode: disable                             # SSL mode for database connection
   max_open_conns: 20                           # Maximum number of open database connections
   max_idle_conns: 10                           # Maximum number of idle connections
