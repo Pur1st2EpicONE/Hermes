@@ -76,7 +76,7 @@ lint:
 
 help:
 	@echo " ———————————————————————————————————————————————————————————————————————————————————— "
-	@echo "| up             | Start all services (postgres, redis, app) in background           |"
+	@echo "| up             | Start all services (postgres, app) in background                  |"
 	@echo "| down           | Stop and remove all containers, networks, and temporary files     |"
 	@echo "| reset          | Remove postgres Docker volume                                     |"
 	@echo "| local          | Start local dev environment (go 1.25.1 required)                  |"

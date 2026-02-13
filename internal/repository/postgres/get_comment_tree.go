@@ -38,7 +38,7 @@ func (s *Storage) GetCommentTree(ctx context.Context, rootID int64) ([]models.Co
 		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	var comments []models.Comment
 
 	for rows.Next() {

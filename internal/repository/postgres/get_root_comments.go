@@ -52,7 +52,7 @@ func (s *Storage) GetRootComments(ctx context.Context, params models.QueryParams
 		return nil, fmt.Errorf("failed to execute query: %w", err)
 	}
 
-	defer rows.Close()
+	defer func() { _ = rows.Close() }()
 	var comments []models.Comment
 
 	for rows.Next() {
