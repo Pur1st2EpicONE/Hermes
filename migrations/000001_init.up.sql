@@ -6,3 +6,6 @@ CREATE TABLE IF NOT EXISTS comments (
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP NOT NULL DEFAULT NOW()
 );
+
+CREATE INDEX IF NOT EXISTS idx_comments_parent_id ON comments (parent_id);
+CREATE INDEX IF NOT EXISTS idx_comments_parent_id_created_at ON comments (parent_id, created_at DESC);
