@@ -10,15 +10,15 @@ RUN go mod download
 COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
-    go build -o iris ./cmd/iris
+    go build -o hermes ./cmd/hermes
 
 FROM scratch
 
 WORKDIR /app
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder /app/iris /app/iris
+COPY --from=builder /app/hermes /app/hermes
 
 EXPOSE 8080
 
-ENTRYPOINT ["/app/iris"]
+ENTRYPOINT ["/app/hermes"]

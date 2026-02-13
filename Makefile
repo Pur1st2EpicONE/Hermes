@@ -63,10 +63,10 @@ postgres:
 	docker compose exec postgres psql -U ${DB_USER} -d hermes-db
 
 app_logs:
-	docker compose logs --tail 5 app
+	docker compose logs --tail 10 app
 
 postgres_logs:
-	docker compose logs --tail 5 postgres
+	docker compose logs --tail 10 postgres
 
 lint:
 	golangci-lint run ./...
@@ -84,8 +84,8 @@ help:
 	@echo "| migrate-down   | Rollback all database migrations                                  |"
 	@echo "| test           | Run unit and integration tests                                    |"
 	@echo "| postgres       | Open psql shell inside postgres container                         |"
-	@echo "| app_logs       | Show last 5 lines of app logs                                     |"
-	@echo "| postgres_logs  | Show last 5 lines of postgres logs                                |"
+	@echo "| app_logs       | Show last 10 lines of app logs                                    |"
+	@echo "| postgres_logs  | Show last 10 lines of postgres logs                               |"
 	@echo "| lint           | Run golangci-lint                                                 |"
 	@echo " ———————————————————————————————————————————————————————————————————————————————————— "
 
