@@ -8,30 +8,29 @@ import (
 	"github.com/wb-go/wbf/retry"
 )
 
+// GetCommentTree retrieves a full comment subtree starting from rootID.
+// It uses a recursive CTE to fetch all nested comments in a single query,
+// ordered by creation time (ascending).
 func (s *Storage) GetCommentTree(ctx context.Context, rootID int64) ([]models.Comment, error) {
 
-	rows, err := s.db.QueryWithRetry(ctx, retry.Strategy{
-		Attempts: s.config.QueryRetryStrategy.Attempts,
-		Delay:    s.config.QueryRetryStrategy.Delay,
-		Backoff:  s.config.QueryRetryStrategy.Backoff,
-	}, `
+	rows, err := s.db.QueryWithRetry(ctx, retry.Strategy(s.config.QueryRetryStrategy), `
 
-	    WITH RECURSIVE tree AS (
+	WITH RECURSIVE tree AS (
     
-		SELECT *
-        FROM comments
-        WHERE id = $1
+	SELECT *
+    FROM comments
+    WHERE id = $1
 
-        UNION ALL
+    UNION ALL
 
-        SELECT c.*
-        FROM comments c
-        JOIN tree t ON c.parent_id = t.id
+    SELECT c.*
+    FROM comments c
+    JOIN tree t ON c.parent_id = t.id
 		
-		)
+	)
 
-        SELECT * FROM tree
-        ORDER BY created_at ASC
+    SELECT * FROM tree
+    ORDER BY created_at ASC
 	
 	`, rootID)
 	if err != nil {

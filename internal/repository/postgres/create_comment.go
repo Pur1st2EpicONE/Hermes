@@ -8,16 +8,15 @@ import (
 	"github.com/wb-go/wbf/retry"
 )
 
+// CreateComment inserts a new comment into the database.
+// It uses a retry strategy for resilience and returns the generated ID.
 func (s *Storage) CreateComment(ctx context.Context, comment models.Comment) (int64, error) {
 
-	row, err := s.db.QueryRowWithRetry(ctx, retry.Strategy{
-		Attempts: s.config.QueryRetryStrategy.Attempts,
-		Delay:    s.config.QueryRetryStrategy.Delay,
-		Backoff:  s.config.QueryRetryStrategy.Backoff}, `
+	row, err := s.db.QueryRowWithRetry(ctx, retry.Strategy(s.config.QueryRetryStrategy), `
 		
-		INSERT INTO comments (parent_id, content, author)
-		VALUES ($1, $2, $3)
-		RETURNING id`,
+	INSERT INTO comments (parent_id, content, author)
+	VALUES ($1, $2, $3)
+	RETURNING id`,
 
 		comment.ParentID, comment.Content, comment.Author)
 	if err != nil {

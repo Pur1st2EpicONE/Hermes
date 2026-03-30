@@ -18,6 +18,9 @@ const (
 	maxLimit     = 100
 )
 
+// parseQuery extracts and validates query parameters from the request.
+// It applies default values for pagination and sorting, validates input,
+// enforces limits, and calculates the offset for data retrieval.
 func parseQuery(c *ginext.Context) (models.QueryParams, error) {
 
 	queryParams := models.QueryParams{
@@ -68,6 +71,8 @@ func parseQuery(c *ginext.Context) (models.QueryParams, error) {
 
 }
 
+// parseParam extracts and validates the "id" path parameter.
+// It ensures the ID is present and is a valid int64 value.
 func parseParam(c *ginext.Context) (int64, error) {
 
 	idStr := c.Param("id")
@@ -83,10 +88,14 @@ func parseParam(c *ginext.Context) (int64, error) {
 
 }
 
+// respondOK sends a successful JSON response with HTTP 200 status.
+// The response is wrapped in a standard {"result": ...} envelope.
 func respondOK(c *ginext.Context, response any) {
 	c.JSON(http.StatusOK, ginext.H{"result": response})
 }
 
+// respondError maps a domain error to an HTTP status code and message,
+// then sends a JSON error response. If err is nil, no response is written.
 func respondError(c *ginext.Context, err error) {
 	if err != nil {
 		status, msg := mapErrorToStatus(err)
@@ -94,6 +103,8 @@ func respondError(c *ginext.Context, err error) {
 	}
 }
 
+// mapErrorToStatus converts domain-specific errors into HTTP status codes
+// and user-facing messages.
 func mapErrorToStatus(err error) (int, string) {
 
 	switch {

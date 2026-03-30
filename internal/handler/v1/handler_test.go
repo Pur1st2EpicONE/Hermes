@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/require"
 	"github.com/wb-go/wbf/ginext"
 	"go.uber.org/mock/gomock"
@@ -38,7 +39,7 @@ func TestHandler_CreateComment(t *testing.T) {
 
 	mockService := mockService.NewMockService(ctrl)
 
-	h := &Handler{service: mockService}
+	h := NewHandler(mockService)
 	router := setupRouter(h)
 
 	t.Run("invalid json", func(t *testing.T) {
@@ -53,7 +54,8 @@ func TestHandler_CreateComment(t *testing.T) {
 		body := CreateCommentV1{ParentID: new(int64), Content: "test", Author: "author"}
 		*body.ParentID = 999
 		b, _ := json.Marshal(body)
-		mockService.EXPECT().CreateComment(gomock.Any(), models.Comment{ParentID: body.ParentID, Content: body.Content, Author: body.Author}).Return(int64(0), errs.ErrParentNotFound)
+		mockService.EXPECT().CreateComment(gomock.Any(),
+			models.Comment{ParentID: body.ParentID, Content: body.Content, Author: body.Author}).Return(int64(0), errs.ErrParentNotFound)
 		req := httptest.NewRequest(http.MethodPost, "/api/v1/comments", bytes.NewBuffer(b))
 		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
@@ -82,7 +84,7 @@ func TestHandler_DeleteComment(t *testing.T) {
 
 	mockService := mockService.NewMockService(ctrl)
 
-	h := &Handler{service: mockService}
+	h := NewHandler(mockService)
 	router := setupRouter(h)
 
 	t.Run("comment not found", func(t *testing.T) {
@@ -102,6 +104,22 @@ func TestHandler_DeleteComment(t *testing.T) {
 		require.Contains(t, w.Body.String(), "deleted")
 	})
 
+	t.Run("invalid id", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodDelete, "/api/v1/comments/abc", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		require.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+}
+
+func Test_emptyId(t *testing.T) {
+	c := new(ginext.Context)
+	t.Run("empty id", func(t *testing.T) {
+		c.Params = gin.Params{}
+		_, err := parseParam(c)
+		require.ErrorIs(t, err, errs.ErrEmptyCommentID)
+	})
 }
 
 func TestHandler_GetComments(t *testing.T) {
@@ -111,7 +129,7 @@ func TestHandler_GetComments(t *testing.T) {
 
 	mockService := mockService.NewMockService(ctrl)
 
-	h := &Handler{service: mockService}
+	h := NewHandler(mockService)
 	router := setupRouter(h)
 
 	comments := []models.Comment{{ID: 1, Content: "comment1"}, {ID: 2, Content: "comment2"}}
@@ -144,6 +162,78 @@ func TestHandler_GetComments(t *testing.T) {
 		require.Contains(t, body, `"content":"comment1"`)
 		require.Contains(t, body, `"id":2`)
 		require.Contains(t, body, `"content":"comment2"`)
+	})
+
+	t.Run("valid parent", func(t *testing.T) {
+		parentID := int64(42)
+		qp := models.QueryParams{Page: 1, Limit: 20, Sort: defaultSort, Offset: 0, ParentID: &parentID}
+		mockService.EXPECT().GetComments(gomock.Any(), qp).Return([]models.Comment{}, nil)
+		req := httptest.NewRequest(http.MethodGet, "/api/v1/comments?parent=42", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		require.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("valid page", func(t *testing.T) {
+		qp := models.QueryParams{Page: 3, Limit: 20, Sort: defaultSort, Offset: 40}
+		mockService.EXPECT().GetComments(gomock.Any(), qp).Return([]models.Comment{}, nil)
+		req := httptest.NewRequest(http.MethodGet, "/api/v1/comments?page=3", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		require.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("invalid parent", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/api/v1/comments?parent=abc", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		require.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("invalid page not number", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/api/v1/comments?page=abc", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		require.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("invalid page less than 1", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/api/v1/comments?page=0", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		require.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("invalid limit not number", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/api/v1/comments?limit=abc", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		require.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("invalid limit less than 1", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/api/v1/comments?limit=0", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		require.Equal(t, http.StatusBadRequest, w.Code)
+	})
+
+	t.Run("limit greater than max", func(t *testing.T) {
+		qp := models.QueryParams{Page: 1, Limit: maxLimit, Sort: defaultSort, Offset: 0}
+		mockService.EXPECT().GetComments(gomock.Any(), qp).Return([]models.Comment{}, nil)
+		req := httptest.NewRequest(http.MethodGet, "/api/v1/comments?limit=9999", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		require.Equal(t, http.StatusOK, w.Code)
+	})
+
+	t.Run("sort asc", func(t *testing.T) {
+		qp := models.QueryParams{Page: 1, Limit: 20, Sort: reverseSort, Offset: 0}
+		mockService.EXPECT().GetComments(gomock.Any(), qp).Return([]models.Comment{}, nil)
+		req := httptest.NewRequest(http.MethodGet, "/api/v1/comments?sort=created_at_asc", nil)
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+		require.Equal(t, http.StatusOK, w.Code)
 	})
 
 }

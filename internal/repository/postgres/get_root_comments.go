@@ -9,6 +9,9 @@ import (
 	"github.com/wb-go/wbf/retry"
 )
 
+// GetRootComments retrieves comments based on query parameters.
+// If ParentID is nil, it returns paginated root-level comments.
+// If ParentID is provided, it returns the specific parent comment.
 func (s *Storage) GetRootComments(ctx context.Context, params models.QueryParams) ([]models.Comment, error) {
 
 	order := "created_at DESC"
@@ -21,29 +24,21 @@ func (s *Storage) GetRootComments(ctx context.Context, params models.QueryParams
 
 	if params.ParentID == nil {
 
-		rows, err = s.db.QueryWithRetry(ctx, retry.Strategy{
-			Attempts: s.config.QueryRetryStrategy.Attempts,
-			Delay:    s.config.QueryRetryStrategy.Delay,
-			Backoff:  s.config.QueryRetryStrategy.Backoff,
-		}, `
+		rows, err = s.db.QueryWithRetry(ctx, retry.Strategy(s.config.QueryRetryStrategy), `
 
-            SELECT * FROM comments
-            WHERE parent_id IS NULL
-            ORDER BY `+order+`
-            LIMIT $1 OFFSET $2`,
+    SELECT * FROM comments
+    WHERE parent_id IS NULL
+    ORDER BY `+order+`
+    LIMIT $1 OFFSET $2`,
 
 			params.Limit, params.Offset)
 
 	} else {
 
-		rows, err = s.db.QueryWithRetry(ctx, retry.Strategy{
-			Attempts: s.config.QueryRetryStrategy.Attempts,
-			Delay:    s.config.QueryRetryStrategy.Delay,
-			Backoff:  s.config.QueryRetryStrategy.Backoff,
-		}, `
+		rows, err = s.db.QueryWithRetry(ctx, retry.Strategy(s.config.QueryRetryStrategy), `
 
-            SELECT * FROM comments
-            WHERE id = $1`,
+    SELECT * FROM comments
+    WHERE id = $1`,
 
 			params.ParentID)
 	}

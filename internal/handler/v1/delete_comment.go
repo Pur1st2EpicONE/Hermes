@@ -6,6 +6,9 @@ import (
 
 const deleted = "deleted"
 
+// DeleteComment handles DELETE /comments/:id requests.
+// It parses the comment ID from the path, invokes the service layer
+// to delete the comment, and returns a confirmation response.
 func (h *Handler) DeleteComment(c *ginext.Context) {
 
 	id, err := parseParam(c)

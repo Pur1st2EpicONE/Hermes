@@ -1,3 +1,5 @@
+// Package handler provides HTTP handlers for the Hermes application.
+// It sets up routes, static file serving, and HTML templates for the web interface.
 package handler
 
 import (
@@ -11,6 +13,8 @@ import (
 
 const templatePath = "web/templates/index.html"
 
+// NewHandler creates and returns an http.Handler with API routes,
+// static file serving and the web frontend at the root path.
 func NewHandler(service service.Service) http.Handler {
 
 	handler := ginext.New("")
@@ -31,6 +35,7 @@ func NewHandler(service service.Service) http.Handler {
 
 }
 
+// homePage renders the main HTML page.
 func homePage(t *template.Template) ginext.HandlerFunc {
 	return func(c *ginext.Context) {
 		if err := t.Execute(c.Writer, nil); err != nil {

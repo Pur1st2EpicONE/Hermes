@@ -4,6 +4,10 @@ import (
 	"github.com/wb-go/wbf/ginext"
 )
 
+// GetComments handles GET /comments requests.
+// It parses query parameters for filtering/pagination,
+// retrieves comments from the service layer,
+// and returns them in the response.
 func (h *Handler) GetComments(c *ginext.Context) {
 
 	queryParams, err := parseQuery(c)

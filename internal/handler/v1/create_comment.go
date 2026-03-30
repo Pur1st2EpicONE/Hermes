@@ -7,6 +7,9 @@ import (
 	"github.com/wb-go/wbf/ginext"
 )
 
+// CreateComment handles POST /comments requests.
+// It validates the incoming JSON payload, constructs a Comment model,
+// delegates creation to the service layer, and returns the created ID.
 func (h *Handler) CreateComment(c *ginext.Context) {
 
 	var request CreateCommentV1

@@ -15,7 +15,7 @@ up:
 	if [ ! -f config.yaml ]; then cp ./configs/config.full.yaml ./config.yaml; fi
 	if [ ! -f docker-compose.yaml ]; then cp ./deployments/docker-compose.full.yaml ./docker-compose.yaml; fi
 	if [ ! -f Dockerfile ]; then cp ./deployments/Dockerfile ./Dockerfile; fi
-	docker compose up -d postgres app
+	COMPOSE_BAKE=true docker compose up -d postgres app
 	rm -f Dockerfile
 
 down:
@@ -29,7 +29,7 @@ local:
 	if [ ! -f .env ]; then cat .env.example > .env; fi 
 	if [ ! -f config.yaml ]; then cp ./configs/config.dev.yaml ./config.yaml; fi 
 	if [ ! -f docker-compose.yaml ]; then cp ./deployments/docker-compose.dev.yaml ./docker-compose.yaml; fi
-	docker compose up -d
+	COMPOSE_BAKE=true docker compose up -d
 	until docker exec postgres pg_isready -U ${DB_USER} > /dev/null 2>&1; do sleep 0.5; done
 	$(MAKE) --no-print-directory migrate-up
 	bash -c 'trap "exit 0" INT; go run ./cmd/hermes/main.go'
@@ -47,7 +47,7 @@ test:
 	if [ ! -f .env ]; then cat .env.example > .env; fi
 	if [ ! -f config.yaml ]; then cp ./configs/config.test.yaml ./config.yaml; fi
 	if [ ! -f docker-compose.yaml ]; then cp ./deployments/docker-compose.test.yaml ./docker-compose.yaml; fi
-	docker compose -f docker-compose.yaml up -d postgres-test
+	COMPOSE_BAKE=true docker compose -f docker-compose.yaml up -d postgres-test
 	until docker exec postgres-test pg_isready -U ${DB_USER} -d hermes_test > /dev/null 2>&1; do sleep 0.5; done
 	for i in $$(seq 1 10); do \
 		migrate -path ./migrations -database "postgres://${DB_USER}:${DB_PASSWORD}@localhost:5433/hermes_test?sslmode=disable" up && break; \

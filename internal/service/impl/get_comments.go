@@ -5,6 +5,9 @@ import (
 	"context"
 )
 
+// GetComments retrieves comments based on query parameters.
+// It fetches root comments, retrieves their subtrees,
+// and reconstructs the hierarchical structure.
 func (s *Service) GetComments(ctx context.Context, params models.QueryParams) ([]models.Comment, error) {
 
 	roots, err := s.storage.GetRootComments(ctx, params)
@@ -34,6 +37,9 @@ func (s *Service) GetComments(ctx context.Context, params models.QueryParams) ([
 
 }
 
+// buildTree converts a flat slice of comments into a tree structure.
+// It maps each comment by ID, links children to parents,
+// and returns a slice of root nodes.
 func buildTree(comments []models.Comment) []*models.Comment {
 
 	hm := make(map[int64]*models.Comment)

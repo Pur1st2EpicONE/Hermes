@@ -9,6 +9,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+// CreateComment validates the input comment, delegates creation to storage,
+// and handles foreign key violations (parent comment missing).
 func (s *Service) CreateComment(ctx context.Context, comment models.Comment) (int64, error) {
 
 	if err := validateComment(comment); err != nil {

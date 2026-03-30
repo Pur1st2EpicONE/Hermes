@@ -8,16 +8,15 @@ import (
 	"github.com/wb-go/wbf/retry"
 )
 
+// DeleteComment removes a comment by ID.
+// It returns ErrCommentNotFound if no rows were affected.
+// Query execution is retried according to configured strategy.
 func (s *Storage) DeleteComment(ctx context.Context, id int64) error {
 
-	row, err := s.db.ExecWithRetry(ctx, retry.Strategy{
-		Attempts: s.config.QueryRetryStrategy.Attempts,
-		Delay:    s.config.QueryRetryStrategy.Delay,
-		Backoff:  s.config.QueryRetryStrategy.Backoff,
-	}, `
+	row, err := s.db.ExecWithRetry(ctx, retry.Strategy(s.config.QueryRetryStrategy), `
 	
-		DELETE FROM comments 
-		WHERE id = $1`,
+	DELETE FROM comments 
+	WHERE id = $1`,
 
 		id)
 	if err != nil {

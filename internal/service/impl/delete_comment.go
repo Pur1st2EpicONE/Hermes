@@ -6,6 +6,9 @@ import (
 	"errors"
 )
 
+// DeleteComment removes a comment by ID via the repository layer.
+// If the comment does not exist, it returns ErrCommentNotFound.
+// Other errors are logged and returned as-is.
 func (s *Service) DeleteComment(ctx context.Context, id int64) error {
 	if err := s.storage.DeleteComment(ctx, id); err != nil {
 		if errors.Is(err, errs.ErrCommentNotFound) {
