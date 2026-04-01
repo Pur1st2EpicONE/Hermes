@@ -182,8 +182,11 @@ GET /api/v1/comments?parent=<id>&page=1&limit=20&sort=created_at_desc
 Query parameters: 
 
 **parent** (integer, optional) — root comment ID.
+
 **page** (integer, optional) — Pagination, default 1.
+
 **limit** (integer, optional) — Pagination, default 20, max 100.
+
 **sort** (string, optional) — Sorting option: created_at_desc or created_at_asc.
 
 <br>
