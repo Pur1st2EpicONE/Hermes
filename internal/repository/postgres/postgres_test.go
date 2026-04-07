@@ -23,23 +23,33 @@ var testStorage *postgres.Storage
 
 func TestMain(m *testing.M) {
 
-	if err := wbf.New().LoadEnvFiles("../../../.env"); err != nil {
+	c := wbf.New()
+
+	if err := c.LoadEnvFiles("../../../.env"); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	if err := c.LoadConfigFiles("../../../config.yaml"); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	var conf config.Config
+
+	if err := c.Unmarshal(&conf); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 
 	cfg := config.Storage{
-		Host:     "postgres-test",
-		Port:     "5432",
-		Username: os.Getenv("DB_USER"),
-		Password: os.Getenv("DB_PASSWORD"),
-		DBName:   "hermes_test",
-		SSLMode:  "disable",
-		QueryRetryStrategy: config.RetryStrategy{
-			Attempts: 3,
-			Delay:    100 * time.Millisecond,
-			Backoff:  1.5,
-		},
+		Host:               conf.Storage.Host,
+		Port:               conf.Storage.Port,
+		Username:           os.Getenv("DB_USER"),
+		Password:           os.Getenv("DB_PASSWORD"),
+		DBName:             conf.Storage.DBName,
+		SSLMode:            conf.Storage.SSLMode,
+		QueryRetryStrategy: conf.Storage.QueryRetryStrategy,
 	}
 
 	logger, _ := logger.NewLogger(config.Logger{Debug: true})
@@ -61,7 +71,7 @@ func TestMain(m *testing.M) {
 func setupTest(t *testing.T) {
 
 	ctx := context.Background()
-	_, err := testStorage.DB().ExecWithRetry(ctx, retry.Strategy{Attempts: 3, Delay: 100 * time.Millisecond, Backoff: 1.5}, `
+	_, err := testStorage.DB().ExecWithRetry(ctx, retry.Strategy{Attempts: 3, Delay: 300 * time.Millisecond, Backoff: 1.5}, `
 	
 	TRUNCATE TABLE comments 
 	RESTART IDENTITY`)
@@ -142,7 +152,7 @@ func TestGetCommentTree(t *testing.T) {
 		t.Fatalf("CreateComment failed: %v", err)
 	}
 
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(300 * time.Millisecond)
 	child := models.Comment{ParentID: &rootID, Content: "Child", Author: "test"}
 
 	childID, err := testStorage.CreateComment(ctx, child)
@@ -150,7 +160,7 @@ func TestGetCommentTree(t *testing.T) {
 		t.Fatalf("CreateComment failed: %v", err)
 	}
 
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(300 * time.Millisecond)
 	grandchild := models.Comment{ParentID: &childID, Content: "Grandchild", Author: "test"}
 
 	grandchildID, err := testStorage.CreateComment(ctx, grandchild)
@@ -194,7 +204,7 @@ func TestGetRootComments(t *testing.T) {
 		t.Fatalf("CreateComment failed: %v", err)
 	}
 
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(300 * time.Millisecond)
 	root2 := models.Comment{Content: "Root2", Author: "test"}
 
 	root2ID, err := testStorage.CreateComment(ctx, root2)
@@ -202,7 +212,7 @@ func TestGetRootComments(t *testing.T) {
 		t.Fatalf("CreateComment failed: %v", err)
 	}
 
-	time.Sleep(100 * time.Millisecond)
+	time.Sleep(300 * time.Millisecond)
 	root3 := models.Comment{Content: "Root3", Author: "test"}
 
 	root3ID, err := testStorage.CreateComment(ctx, root3)
