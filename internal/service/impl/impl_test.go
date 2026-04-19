@@ -135,6 +135,7 @@ func TestService_DeleteComment(t *testing.T) {
 		err := svc.DeleteComment(ctx, commentID)
 		require.EqualError(t, err, "db down")
 	})
+
 }
 
 func TestService_GetComments(t *testing.T) {
@@ -243,6 +244,7 @@ func TestBuildTree(t *testing.T) {
 		require.Len(t, result, 1)
 		require.Equal(t, int64(2), result[0].ID)
 	})
+
 }
 
 func ptr(i int64) *int64 {
